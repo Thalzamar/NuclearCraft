@@ -34,7 +34,7 @@ public class RadiationRenders {
 	private static final String IMMUNE = Lang.localise("hud.nuclearcraft.rad_immune");
 	private static final String IMMUNE_FOR = Lang.localise("hud.nuclearcraft.rad_immune_for");
 	
-	/* Originally from coolAlias' 'Tutorial-Demo' - tutorial.client.gui.GuiManaBar */
+	/** Originally from coolAlias' 'Tutorial-Demo' - tutorial.client.gui.GuiManaBar */
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void addRadiationInfo(RenderGameOverlayEvent.Post event) {
 		if (!radiation_enabled_public) {
@@ -86,16 +86,16 @@ public class RadiationRenders {
 	private static void drawTexturedModalRect(int x, int y, int textureX, int textureY, int width, int height) {
 		double zLevel = 0D;
 		Tessellator tessellator = Tessellator.getInstance();
-		BufferBuilder bufferbuilder = tessellator.getBuffer();
-		bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-		bufferbuilder.pos(x + 0, y + height, zLevel).tex((textureX + 0) * 0.00390625F, (textureY + height) * 0.00390625F).endVertex();
-		bufferbuilder.pos(x + width, y + height, zLevel).tex((textureX + width) * 0.00390625F, (textureY + height) * 0.00390625F).endVertex();
-		bufferbuilder.pos(x + width, y + 0, zLevel).tex((textureX + width) * 0.00390625F, (textureY + 0) * 0.00390625F).endVertex();
-		bufferbuilder.pos(x + 0, y + 0, zLevel).tex((textureX + 0) * 0.00390625F, (textureY + 0) * 0.00390625F).endVertex();
+		BufferBuilder builder = tessellator.getBuffer();
+		builder.begin(7, DefaultVertexFormats.POSITION_TEX);
+		builder.pos(x + 0, y + height, zLevel).tex((textureX + 0) * 0.00390625F, (textureY + height) * 0.00390625F).endVertex();
+		builder.pos(x + width, y + height, zLevel).tex((textureX + width) * 0.00390625F, (textureY + height) * 0.00390625F).endVertex();
+		builder.pos(x + width, y + 0, zLevel).tex((textureX + width) * 0.00390625F, (textureY + 0) * 0.00390625F).endVertex();
+		builder.pos(x + 0, y + 0, zLevel).tex((textureX + 0) * 0.00390625F, (textureY + 0) * 0.00390625F).endVertex();
 		tessellator.draw();
 	}
 	
-	/* Thanks to dizzyd for this method! */
+	/** Thanks to dizzyd for this method! */
 	@SubscribeEvent
 	public void onRenderWorldLastEvent(RenderWorldLastEvent event) {
 		// Overlay renderer for the geiger counter and radiation scrubber blocks
@@ -106,11 +106,10 @@ public class RadiationRenders {
 			return;
 		}
 		
-		// Draw the chunk borders if we're either holding a geiger block OR
-		// looking at one
 		for (EnumHand hand : EnumHand.values()) {
-			ItemStack heldItem = MC.player.getHeldItem(hand);
-			if (NCItems.geiger_counter == heldItem.getItem() || Item.getItemFromBlock(NCBlocks.radiation_scrubber) == heldItem.getItem()) {
+			ItemStack heldStack = MC.player.getHeldItem(hand);
+			Item heldItem = heldStack.getItem();
+			if (NCItems.geiger_counter == heldItem || Item.getItemFromBlock(NCBlocks.geiger_block) == heldItem || Item.getItemFromBlock(NCBlocks.radiation_scrubber) == heldItem) {
 				chunkBorders = true;
 				break;
 			}
@@ -118,12 +117,12 @@ public class RadiationRenders {
 		
 		if (!chunkBorders && MC.objectMouseOver != null && MC.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK) {
 			TileEntity te = MC.world.getTileEntity(MC.objectMouseOver.getBlockPos());
-			if (!chunkBorders && (te instanceof TileGeigerCounter || te instanceof TileRadiationScrubber)) {
+			if (te instanceof TileGeigerCounter || te instanceof TileRadiationScrubber) {
 				chunkBorders = true;
 			}
 		}
 		
-		/* Logic below taken with minor changes from BluSunrize's Immersive Engineering: blusunrize.immersiveengineering.client.ClientEventHandler */
+		// Logic below taken with minor changes from BluSunrize's Immersive Engineering: blusunrize.immersiveengineering.client.ClientEventHandler
 		
 		if (chunkBorders) {
 			EntityPlayer player = MC.player;
@@ -135,7 +134,7 @@ public class RadiationRenders {
 			int y = Math.min((int) player.posY - 2, player.getEntityWorld().getChunk(chunkX, chunkZ).getLowestHeight());
 			float h = (float) Math.max(32, player.posY - y + 8);
 			Tessellator tessellator = Tessellator.getInstance();
-			BufferBuilder BufferBuilder = tessellator.getBuffer();
+			BufferBuilder builder = tessellator.getBuffer();
 			
 			GlStateManager.disableTexture2D();
 			GlStateManager.enableBlend();
@@ -145,28 +144,28 @@ public class RadiationRenders {
 			float r = 255;
 			float g = 0;
 			float b = 0;
-			BufferBuilder.setTranslation(chunkX - px, y + 2 - py, chunkZ - pz);
+			builder.setTranslation(chunkX - px, y + 2 - py, chunkZ - pz);
 			GlStateManager.glLineWidth(5f);
-			BufferBuilder.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
-			BufferBuilder.pos(0, 0, 0).color(r, g, b, .375f).endVertex();
-			BufferBuilder.pos(0, h, 0).color(r, g, b, .375f).endVertex();
-			BufferBuilder.pos(16, 0, 0).color(r, g, b, .375f).endVertex();
-			BufferBuilder.pos(16, h, 0).color(r, g, b, .375f).endVertex();
-			BufferBuilder.pos(16, 0, 16).color(r, g, b, .375f).endVertex();
-			BufferBuilder.pos(16, h, 16).color(r, g, b, .375f).endVertex();
-			BufferBuilder.pos(0, 0, 16).color(r, g, b, .375f).endVertex();
-			BufferBuilder.pos(0, h, 16).color(r, g, b, .375f).endVertex();
+			builder.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+			builder.pos(0, 0, 0).color(r, g, b, 0.375F).endVertex();
+			builder.pos(0, h, 0).color(r, g, b, 0.375F).endVertex();
+			builder.pos(16, 0, 0).color(r, g, b, 0.375F).endVertex();
+			builder.pos(16, h, 0).color(r, g, b, 0.375F).endVertex();
+			builder.pos(16, 0, 16).color(r, g, b, 0.375F).endVertex();
+			builder.pos(16, h, 16).color(r, g, b, 0.375F).endVertex();
+			builder.pos(0, 0, 16).color(r, g, b, 0.375F).endVertex();
+			builder.pos(0, h, 16).color(r, g, b, 0.375F).endVertex();
 			
-			BufferBuilder.pos(0, 2, 0).color(r, g, b, .375f).endVertex();
-			BufferBuilder.pos(16, 2, 0).color(r, g, b, .375f).endVertex();
-			BufferBuilder.pos(0, 2, 0).color(r, g, b, .375f).endVertex();
-			BufferBuilder.pos(0, 2, 16).color(r, g, b, .375f).endVertex();
-			BufferBuilder.pos(0, 2, 16).color(r, g, b, .375f).endVertex();
-			BufferBuilder.pos(16, 2, 16).color(r, g, b, .375f).endVertex();
-			BufferBuilder.pos(16, 2, 0).color(r, g, b, .375f).endVertex();
-			BufferBuilder.pos(16, 2, 16).color(r, g, b, .375f).endVertex();
+			builder.pos(0, 2, 0).color(r, g, b, 0.375F).endVertex();
+			builder.pos(16, 2, 0).color(r, g, b, 0.375F).endVertex();
+			builder.pos(0, 2, 0).color(r, g, b, 0.375F).endVertex();
+			builder.pos(0, 2, 16).color(r, g, b, 0.375F).endVertex();
+			builder.pos(0, 2, 16).color(r, g, b, 0.375F).endVertex();
+			builder.pos(16, 2, 16).color(r, g, b, 0.375F).endVertex();
+			builder.pos(16, 2, 0).color(r, g, b, 0.375F).endVertex();
+			builder.pos(16, 2, 16).color(r, g, b, 0.375F).endVertex();
 			tessellator.draw();
-			BufferBuilder.setTranslation(0, 0, 0);
+			builder.setTranslation(0, 0, 0);
 			GlStateManager.shadeModel(GL11.GL_FLAT);
 			GlStateManager.enableCull();
 			GlStateManager.disableBlend();
